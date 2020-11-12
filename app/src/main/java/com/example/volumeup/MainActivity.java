@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private static final int maxLinesInput = 10000;
     private static String LOG_TAG = "VoiceRecognitionActivity";
 
+
     // UI Elements
     private ToggleButton toggleButton;
     private ProgressBar progressBar;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private boolean listening = false;
     private boolean isThereSpeech = false;
     private int amplitudeThreshold = 5;
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,10 +228,12 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     public void onRmsChanged(float rmsdB) {
         Log.i(LOG_TAG, "onRmsChanged: " + rmsdB);
         progressBar.setProgress((int) rmsdB);
-        if ((int) rmsdB <= amplitudeThreshold && isThereSpeech) {
+        if ((int) rmsdB <= amplitudeThreshold && isThereSpeech && counter >= 3) {
             play();
+            counter = 0;
         } else {
             pause();
+            counter++;
         }
         if(!listening){
             turnOff();
